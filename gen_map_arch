@@ -1,0 +1,18 @@
+game_map{
+__init__(self.width = width
+        self.height = height
+        self.full_rooms = True
+        self.chunks = set()
+        self.chunk_size = chunk_size
+        self.entities = dict()
+        self.terrain = dict()
+        self.water = dict()
+        self.objects = dict()
+        self.items = dict()
+        self.corpses = dict(),
+is_ubstruct(self, x, y),
+}
+generate_map{
+gen_chunks,
+bsp_generator,
+}
