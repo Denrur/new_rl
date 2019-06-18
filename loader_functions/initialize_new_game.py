@@ -6,8 +6,8 @@ def get_constants():
     screen_height = blt.state(blt.TK_HEIGHT)
     map_width = int(blt.get("ini.Game.map_width"))
     map_height = int(blt.get("ini.Game.map_height"))
-    camera_width = int(blt.get("ini.Game.camera_width"))
-    camera_height = int(blt.get("ini.Game.camera_height"))
+    camera_width = int(screen_width * 3 / 4)  # int(blt.get("ini.Game.camera_width"))
+    camera_height = int(screen_height * 3 / 4)  # int(blt.get("ini.Game.camera_height"))
     constants = {
         'screen_width': screen_width,
         'screen_height': screen_height,

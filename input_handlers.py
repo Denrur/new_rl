@@ -7,8 +7,12 @@ def handle_keys(game_state, key):
         return handle_sessions_keys(key)
     elif game_state == 'targeting':  # GameStates.TARGETING:
         return handle_targeting_keys(key)
+    elif game_state == GameStates.PLAYER_DEAD:
+        return handle_menu_keys(key)
 #    elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
 #        return handle_inventory_keys(key)
+    else:
+        return {}
 
 
 def handle_sessions_keys(key):
@@ -80,4 +84,17 @@ def handle_inventory_keys(key):
     elif index >= 0:
         return {'inventory_index': index}
 
+    return {}
+
+
+def handle_menu_keys(key):
+    if key == blt.TK_RETURN and blt.TK_ALT:
+        return {'fullscreen': True}
+
+    elif key == blt.TK_ESCAPE:
+        return {'exit': True}
+
+    if key == 133:
+        return {'mouse': True}
+    # print("Code ", key)
     return {}

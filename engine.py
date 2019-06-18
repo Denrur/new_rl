@@ -12,6 +12,7 @@ from map_objects.game_map import GameMap
 from map_objects.map_generator import generate_map
 from physics import movement
 from render_functions import render_all
+from result_listner import show_result
 
 
 def main():
@@ -44,7 +45,7 @@ def main():
         blt.clear()
 
         # key = None
-        # if blt.has_input():
+        #if blt.has_input():
         key = blt.read()
 
         action = handle_keys(game_state, key)
@@ -53,31 +54,45 @@ def main():
         fullscreen = action.get('fullscreen')
         exit = action.get('exit')
 
+        player_turn_results = list()
         if move and game_state == GameStates.PLAYERS_TURN:
-            movement(move, game_map, player)
+            player_turn_result = movement(move, game_map, player)
+            player_turn_results.extend(player_turn_result)
             player.fov.calc_fov(game_map)
             game_state = GameStates.ENEMY_TURN
             if map_type == 'chunks':
                 add_new_chunks(game_map, player)
-
-        if game_state == GameStates.ENEMY_TURN:
-            completed_entities = []
-            for entity in game_map.entities.values():
-                if entity.ai:
-                    if entity not in completed_entities:
-                        entity.ai.take_turn(player, game_map)
-                        completed_entities.append(entity)
+        if player_turn_results:
+            state = show_result(player_turn_results, game_state, game_map)
+            if state:
+                game_state = state
 
 
-            game_state = GameStates.PLAYERS_TURN
-            # print(game_state)
         if fullscreen:
             blt.set("window: fullscreen=true;")
         if exit:
             return False
 
+        if game_state == GameStates.ENEMY_TURN:
+            completed_entities = []
+            # Go through list of entities to be able change entities dict during for-loop
+            for entity in list(game_map.entities.values()):
+                if entity.ai:
+                    if entity not in completed_entities:
+                        enemy_turn_results = entity.ai.take_turn(player, game_map)
+                        completed_entities.append(entity)
+                        state = show_result(enemy_turn_results, game_state, game_map)
+                        if state:
+                            game_state = state
+                        if game_state == GameStates.PLAYER_DEAD:
+                            break
+                    if game_state == GameStates.PLAYER_DEAD:
+                        break
+            else:
+                game_state = GameStates.PLAYERS_TURN
+
         render_all(game_map, player, camera)
-        blt.refresh()
+        # blt.refresh()
 
 
 if __name__ == '__main__':
