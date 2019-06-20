@@ -1,9 +1,10 @@
-from map_objects.chunks.make_bsp import make_bsp
-from entity import Entity
-from place_entities import place_entities
 import itertools
 from random import randint
+
+from entity import Entity
+from map_objects.chunks.make_bsp import make_bsp
 from map_objects.chunks.noise_map import make_noise_map
+from place_entities import place_entities
 
 
 def generate_chunk(x, y, game_map):
@@ -40,7 +41,7 @@ def generate_chunk(x, y, game_map):
                 # r = randint(0, 2)
                 # game_map.terrain[(j, k)] = Entity(j, k, walls[r], 'white',
                 # 'wall')
-                game_map.terrain[(j, k)] = Entity(j, k, '*', 'Mount', 'white',
+                game_map.terrain[(j, k)] = Entity(j, k, '*', 'Mount', 'grey',
                                                   game_map.terrain)
 
     place_entities(x, y,

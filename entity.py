@@ -3,9 +3,11 @@ import math
 
 class Entity:
     def __init__(self, x, y, char, name, color,
-                 layer=None, fighter=None, ai=None,
+                 layer=None,
+                 fighter=None, ai=None, fov=None,
+                 item=None, inventory=None,
                  blocked=True,
-                 block_sight=None, fov=None):
+                 block_sight=None, ):
         self.x = x
         self.y = y
         self.char = char
@@ -18,6 +20,14 @@ class Entity:
         self.fov = fov
         self.fighter = fighter
         self.ai = ai
+        self.item = item
+        self.inventory = inventory
+
+        if self.inventory:
+            self.inventory.owner = self
+
+        if self.item:
+            self.item.owner = self
 
         if self.fighter:
             self.fighter.owner = self

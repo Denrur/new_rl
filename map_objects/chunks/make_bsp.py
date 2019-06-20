@@ -1,8 +1,10 @@
 import copy
-from entity import Entity
 import random
-from place_entities import place_entities
+
 import tcod
+
+from entity import Entity
+from place_entities import place_entities
 
 
 def make_bsp(game_map, cx, cy, depth, min_room_size):
@@ -17,11 +19,11 @@ def initialize_terrain(game_map, cx, cy):
     for x in range(cx, cx + game_map.chunk_size):
         for y in range(cy, cy + game_map.chunk_size):
             if x == cx or x == cx + game_map.chunk_size - 1:
-                Entity(x, y, '=', 'Wall', 'white', game_map.terrain)
+                Entity(x, y, '=', 'Wall', 'grey', game_map.terrain)
             elif y == cy or y == cy + game_map.chunk_size - 1:
-                Entity(x, y, '=', 'Wall', 'white', game_map.terrain)
+                Entity(x, y, '=', 'Wall', 'grey', game_map.terrain)
             else:
-                Entity(x, y, '#', 'Wall', 'white', game_map.terrain)
+                Entity(x, y, '#', 'Wall', 'grey', game_map.terrain)
 
 
 def bsp_generate(bsp, game_map, depth, min_room_size, cx, cy, full_rooms):

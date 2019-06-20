@@ -1,18 +1,38 @@
-from bearlibterminal import terminal as blt
-from UI.layers import Layers
+import textwrap
 
+from bearlibterminal import terminal as blt
+
+from game_states import GameStates
+from UI.layers import Layers
 
 bar_width = 20
 panel_height = 7
 panel_y = blt.state(blt.TK_HEIGHT) - panel_height
 
 
-def ui(player, camera, log_frame, action):
+def ui(game_map, player, camera, game_state, log_frame, action):
+    mouse_x, mouse_y = blt.state(blt.TK_MOUSE_X), blt.state(blt.TK_MOUSE_Y)
+    names = get_names_under_mouse(game_map.entities, player, camera)
 
+    print(names)
+    if names:
+        blt.clear_area(mouse_x + 1, mouse_y, len(names), 1)
+        blt.puts(mouse_x + 1, mouse_y, names)
     render_bar(camera.width + 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp,
                'dark red', 'darkest red')
 
     render_log(1, camera.height + 1, 50, 7, log_frame, action)
+    if game_state in (GameStates.SHOW_INVENTORY,
+                      GameStates.DROP_INVENTORY):
+        if game_state == GameStates.SHOW_INVENTORY:
+            inventory_title = 'Press the key next to an item to use it'
+        else:
+            inventory_title = 'Press the key next to an item to drop it'
+
+        inventory_menu(inventory_title,
+                       player,
+                       50, blt.state(blt.TK_WIDTH),
+                       blt.state(blt.TK_HEIGHT))
 
     blt.layer(Layers.MAP.value)
 
@@ -69,10 +89,10 @@ def render_log(x, y, width, height, log_frame, action=None):
 
     blt.layer(Layers.UI_FOREGROUND.value)
     current_line = frame.height - len(frame.contents.texts)
-    print("----------")
+    # print("----------")
     for text, height in frame.contents:
 
-        print('Current line', current_line)
+        # print('Current line', current_line)
         if current_line + frame.offset < 0:
             pass
         elif current_line + frame.offset > frame.height:
@@ -86,3 +106,84 @@ def render_log(x, y, width, height, log_frame, action=None):
     # blt.crop(x, y, frame.width, frame.height + 1)
 
 
+def get_names_under_mouse(entities, player, camera):
+    mouse_x, mouse_y = camera.to_map_coordinates(blt.state(
+            blt.TK_MOUSE_X), blt.state(
+            blt.TK_MOUSE_Y))
+
+    # print(mouse_x, mouse_y)
+    # print(entities.get((mouse_x, mouse_y)))
+    names = [entity.name for entity in entities.values()
+             if entities.get((mouse_x, mouse_y)) == entity and
+             (mouse_x, mouse_y) in player.fov.fov_cells]
+
+    names = ', '.join(names)
+
+    return names.capitalize()
+
+
+def create_window(x, y, w, h, title=None):
+    last_bg = blt.state(blt.TK_BKCOLOR)
+    blt.bkcolor(blt.color_from_argb(200, 0, 0, 0))
+    blt.clear_area(x, y, w + 1, h + 1)
+    blt.bkcolor(last_bg)
+
+    border = '[U+250C]' + '[U+2500]' * (w - 2) + '[U+2510]'
+    blt.puts(x, y, '[font=small]' + border)
+    for i in range(1, h):
+        blt.puts(x, y + i, '[font=small][U+2502]')
+        blt.puts(x + w - 1, y + i, '[font=small][U+2502]')
+    border = '[U+2514]' + '[U+2500]' * (w - 2) + '[U+2518]'
+    blt.puts(x, y + h, '[font=small]' + border)
+
+    if title is not None:
+        leng = len(title)
+        offset = (w + 2 - leng) // 2
+        blt.clear_area(x + offset, y, leng, 1)
+        blt.puts(x + offset, y, '[font=small]' + title)
+
+
+def menu(header, options, width, screen_width, screen_height, title=None):
+    if len(options) > 26:
+        raise ValueError('Cannot have a menu with more than 26 options.')
+
+    menu_x = int((screen_width - width) / 2)
+
+    header_wrapped = textwrap.wrap(header, width)
+    header_height = len(header_wrapped)
+
+    menu_h = int(header_height + 1 + 26)
+    menu_y = int((screen_height - menu_h) / 2)
+
+    create_window(menu_x, menu_y, width, menu_h, title)
+
+    for i, line in enumerate(header_wrapped):
+        blt.puts(menu_x + 1, menu_y + 1 + i, header_wrapped[i])
+
+    y = menu_y + header_height + 1
+    letter_index = ord('a')
+    for option_text in options:
+        text = '(' + chr(letter_index) + ')' + option_text
+        blt.puts(menu_x + 1, y, text)
+        y += 1
+        letter_index += 1
+    blt.refresh()
+
+
+def inventory_menu(header, player, inventory_width,
+                   screen_width, screen_height):
+    if len(player.inventory.items) == 0:
+        options = ['Inventory is empty.']
+    else:
+        options = []
+
+        for item in player.inventory.items:
+            # if player.equipment.main_hand == item:
+            #     options.append('{0} (on main hand)'.format(item.name))
+            # elif player.equipment.off_hand == item:
+            #     options.append('{0} (on off hand)'.format(item.name))
+            # else:
+            options.append(item.name)
+
+    menu(header, options, inventory_width, screen_width, screen_height,
+         title='INVENTORY')

@@ -1,21 +1,22 @@
 from bearlibterminal import terminal as blt
+
 from game_states import GameStates
 
 
 def handle_keys(game_state, key):
     if game_state == GameStates.PLAYERS_TURN:  # GameStates.SESSION:
-        return handle_sessions_keys(key)
+        return handle_player_turn_keys(key)
     elif game_state == 'targeting':  # GameStates.TARGETING:
         return handle_targeting_keys(key)
     elif game_state == GameStates.PLAYER_DEAD:
         return handle_menu_keys(key)
-#    elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
-#        return handle_inventory_keys(key)
+    elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
+        return handle_inventory_keys(key)
     else:
         return {}
 
 
-def handle_sessions_keys(key):
+def handle_player_turn_keys(key):
     # Movement keys
     if key == blt.TK_UP or key == blt.TK_W:
         # print('Up')
@@ -38,13 +39,16 @@ def handle_sessions_keys(key):
     elif key == blt.TK_C:
         return {'move': (1, 1)}
 
+    if key == blt.TK_G:
+        return {'pickup': True}
+
     if key == blt.TK_MOUSE_SCROLL:
         # Mouse wheel scroll
         return{'scroll': True}
-    elif key == blt.TK_O:
-        return{'scroll_up': True}
-    elif key == blt.TK_L:
-        return{'scroll_down': True}
+    # elif key == blt.TK_O:
+    #     return{'scroll_up': True}
+    # elif key == blt.TK_L:
+    #     return{'scroll_down': True}
 
     if key == blt.TK_G:
         return{'pickup': True}
@@ -86,6 +90,7 @@ def handle_targeting_keys(key):
 
 def handle_inventory_keys(key):
     index = key - 4
+    print(index, ord('a'))
     if key == blt.TK_ESCAPE:
         return {'exit': True}
 
@@ -102,6 +107,20 @@ def handle_menu_keys(key):
     elif key == blt.TK_ESCAPE:
         return {'exit': True}
 
+    if key == 133:
+        return {'mouse': True}
+    # print("Code ", key)
+    return {}
+
+
+def handle_player_dead_key(key):
+    if key == blt.TK_RETURN and blt.TK_ALT:
+        return {'fullscreen': True}
+
+    elif key == blt.TK_ESCAPE:
+        return {'exit': True}
+    if key == blt.TK_I:
+        return {'show_inventory': True}
     if key == 133:
         return {'mouse': True}
     # print("Code ", key)
