@@ -38,6 +38,14 @@ def handle_sessions_keys(key):
     elif key == blt.TK_C:
         return {'move': (1, 1)}
 
+    if key == blt.TK_MOUSE_SCROLL:
+        # Mouse wheel scroll
+        return{'scroll': True}
+    elif key == blt.TK_O:
+        return{'scroll_up': True}
+    elif key == blt.TK_L:
+        return{'scroll_down': True}
+
     if key == blt.TK_G:
         return{'pickup': True}
 
