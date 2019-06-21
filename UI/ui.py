@@ -14,7 +14,7 @@ def ui(game_map, player, camera, game_state, log_frame, action):
     mouse_x, mouse_y = blt.state(blt.TK_MOUSE_X), blt.state(blt.TK_MOUSE_Y)
     names = get_names_under_mouse(game_map.entities, player, camera)
 
-    print(names)
+    # print(names)
     if names:
         blt.clear_area(mouse_x + 1, mouse_y, len(names), 1)
         blt.puts(mouse_x + 1, mouse_y, names)
@@ -93,6 +93,7 @@ def render_log(x, y, width, height, log_frame, action=None):
     for text, height in frame.contents:
 
         # print('Current line', current_line)
+        # print('Text', text)
         if current_line + frame.offset < 0:
             pass
         elif current_line + frame.offset > frame.height:

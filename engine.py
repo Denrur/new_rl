@@ -8,7 +8,7 @@ from components.fov import Fov
 from components.inventory import Inventory
 from entity import Entity
 from functions.loader_functions.initialize_new_game import get_constants
-from game_messages import MessageLog
+from UI.game_messages import MessageLog
 from game_states import GameStates
 from input_handlers import handle_keys
 from map_objects.chunks.chunk_generator import add_new_chunks
@@ -17,7 +17,7 @@ from map_objects.map_generator import generate_map
 from physics import movement
 from render_functions import render_all
 from result_listner import show_result
-from UI.formatted_log import FrameWithScrollbar
+from UI.frame import FrameWithScrollbar
 
 
 def main():
@@ -52,10 +52,11 @@ def main():
     player.fov.calc_fov(game_map)
     render_all(game_map, player, camera, game_state, log_frame)
     blt.refresh()
-
-
+    targeting_item = None
     while True:
-
+        # mouse_x = blt.state(blt.TK_MOUSE_X)
+        # mouse_y = blt.state(blt.TK_MOUSE_Y)
+        # mouse = (mouse_x, mouse_y)
         # player.fov.calc_fov(game_map)
         # render_all(game_map, player, camera)
         blt.clear()
@@ -63,19 +64,21 @@ def main():
         # key = None
         # if blt.has_input():
         key = blt.read()
-
         action = handle_keys(game_state, key)
-
+        # mouse_action = handle_mouse(mouse)
         move = action.get('move')
         fullscreen = action.get('fullscreen')
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
         drop_inventory = action.get('drop_inventory')
         inventory_index = action.get('inventory_index')
+        left_click = action.get('left_click')
+        right_click = action.get('right_click')
         exit = action.get('exit')
 
         start_loop = time()
         player_turn_results = list()
+
         if move and game_state == GameStates.PLAYERS_TURN:
             player_turn_result = movement(move, game_map, player)
             player_turn_results.extend(player_turn_result)
@@ -108,9 +111,25 @@ def main():
             item = player.inventory.items[inventory_index]
 
             if game_state == GameStates.SHOW_INVENTORY:
-                player_turn_results.extend(player.inventory.use(item))
+                player_turn_results.extend(player.inventory.use(item, entities=game_map.entities,))
+                # fov=player.fov.fov_cells))
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
+        if game_state == GameStates.TARGETING:
+            if left_click:
+                target_x, target_y = camera.to_map_coordinates(left_click[0],
+                                                               left_click[1])
+
+                item_use_results = player.inventory.use(player.inventory.targeting_item,
+                                                        entities=game_map.entities,
+                                                        target_x=target_x,
+                                                        target_y=target_y)
+                player_turn_results.extend(item_use_results)
+
+            elif right_click:
+                player_turn_results.append({'targeting_cancelled': True})
+
+
 
         if player_turn_results:
             state = show_result(player_turn_results,
@@ -127,30 +146,33 @@ def main():
             if game_state in (GameStates.SHOW_INVENTORY,
                               GameStates.DROP_INVENTORY):
                 game_state = previous_game_state
+            elif game_state == GameStates.TARGETING:
+                player_turn_results.append({'targeting_cancelled': True})
             else:
                 return False
 
         if game_state == GameStates.ENEMY_TURN:
             completed_entities = []
-
-            for x, y in player.fov.fov_cells:
-                if (x, y) in game_map.entities:
-                    entity = game_map.entities[(x, y)]
-                    if entity.ai:
-                        if entity not in completed_entities:
-                            enemy_turn_results = entity.ai.take_turn(player,
-                                                                     game_map)
-                            completed_entities.append(entity)
-                            state = show_result(enemy_turn_results,
-                                                game_state,
-                                                game_map, message_log,
-                                                entity)
-                            if state:
-                                game_state = state
-                            if game_state == GameStates.PLAYER_DEAD:
-                                break
+            entities = [game_map.entities.get((x, y)) for (x, y) in set(player.fov.fov_cells) & set(game_map.entities)]
+            # for x, y in player.fov.fov_cells:
+            for entity in entities:
+                # if (x, y) in game_map.entities:
+                # entity = game_map.entities.get((x, y))
+                if entity is not None and entity.ai:
+                    if entity not in completed_entities:
+                        enemy_turn_results = entity.ai.take_turn(player,
+                                                                 game_map)
+                        completed_entities.append(entity)
+                        state = show_result(enemy_turn_results,
+                                            game_state,
+                                            game_map, message_log,
+                                            entity)
+                        if state:
+                            game_state = state
                         if game_state == GameStates.PLAYER_DEAD:
                             break
+                    if game_state == GameStates.PLAYER_DEAD:
+                        break
 
             else:
                 game_state = GameStates.PLAYERS_TURN

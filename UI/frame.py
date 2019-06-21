@@ -39,9 +39,9 @@ class FrameWithScrollbar:
             self.offset = 0
 
     def scroll(self, dy):
-        print('Must scroll', dy)
+        # print('Must scroll', dy)
         self.offset = max(0, min(self.contents.total_height - self.height, self.offset + dy))
-        print('self.offset', self.offset)
+        # print('self.offset', self.offset)
 
     def draw(self):
         x = self.top

@@ -31,6 +31,7 @@ def render_all(game_map, player, camera, game_state,
                 if (map_x, map_y) in corpses:
                     obj = corpses.get((map_x, map_y))
                     render_obj((map_x, map_y), corpses, camera, obj.color)
+
                 if (map_x, map_y) in items:
                     obj = items.get((map_x, map_y))
                     render_obj((map_x, map_y), items, camera, obj.color)
@@ -48,9 +49,6 @@ def render_all(game_map, player, camera, game_state,
                 render_obj((map_x, map_y), water, camera, 'darker blue')
 
     ui(game_map, player, camera, game_state, log_frame, action)
-    # print('Map layer', blt.state(blt.TK_LAYER))
-    # render_bar(1, camera.height + 1, 10, 'HP', player.fighter.hp, player.fighter.max_hp,
-    #            'dark red', 'darkest red')
 
     # debug
     if debug:
@@ -71,37 +69,39 @@ def show_debug_info(game_map, player, camera, frame, player_coords=False,
                     mouse_coords=False, db_ui=False, entities_db=False):
     # Show player coords
     blt.color('white')
+    puts = blt.puts
     if player_coords:
-        blt.puts(camera.width, camera.height - 2, str(player.x))
-        blt.puts(camera.width, camera.height - 1, str(player.y))
+        puts(camera.width, camera.height - 2, str(player.x))
+        puts(camera.width, camera.height - 1, str(player.y))
     if db_ui:
-        blt.puts(camera.width + 1, camera.height + 1,
-                 'Total height - height ' + str(frame.contents.total_height
-                                                - frame.height))
-        blt.puts(camera.width + 1, camera.height + 2,
-                 'Offset ' + str(frame.offset))
-        blt.puts(camera.width + 1, camera.height + 3,
-                 'Total height ' + str(frame.contents.total_height))
-        blt.puts(camera.width + 1, camera.height + 4,
-                 'Num of messages in log ' + str(len(frame.contents.texts)))
-        blt.puts(camera.width + 1, camera.height + 5,
-                 f'''Scrollbar offset {int(frame.scrollbar_offset /
-                                           blt.state(blt.TK_CELL_HEIGHT))} = 
+        puts(camera.width + 1, camera.height + 1,
+             'Total height - height ' + str(frame.contents.total_height
+                                            - frame.height))
+        puts(camera.width + 1, camera.height + 2,
+             'Offset ' + str(frame.offset))
+        puts(camera.width + 1, camera.height + 3,
+             'Total height ' + str(frame.contents.total_height))
+        puts(camera.width + 1, camera.height + 4,
+             'Num of messages in log ' + str(len(frame.contents.texts)))
+        puts(camera.width + 1, camera.height + 5,
+             f'''Scrollbar offset {int(frame.scrollbar_offset / blt.state(blt.TK_CELL_HEIGHT))} = 
         {frame.top} + ({frame.height} - {frame.scrollbar_height})
         * (1 - {frame.offset} /
         ({frame.contents.total_height} - {frame.height} + 1))''')
 
         # Show number of entities around player
-    # i = 0
-    # for x in range(player.x - 10, player.x + 10):
-    #     for y in range(player.y - 10, player.y + 10):
-    #         if (x, y) in game_map.entities:
-    #             i += 1
-    # blt.puts(camera.width, camera.height - 4, str(i))
+    if entities_db:
+        i = 0
+        for x in range(player.x - 10, player.x + 10):
+            for y in range(player.y - 10, player.y + 10):
+                if (x, y) in game_map.entities:
+                    i += 1
+        blt.puts(camera.width, camera.height - 4, str(i))
+
     if mouse_coords:
         # Show mouse coordinates on map
         mouse_x, mouse_y = camera.to_map_coordinates(blt.state(
             blt.TK_MOUSE_X), blt.state(
             blt.TK_MOUSE_Y))
-        blt.puts(camera.width, camera.height - 6, 'Mouse x = ' + str(mouse_x))
-        blt.puts(camera.width, camera.height - 5, 'Mouse y = ' + str(mouse_y))
+        puts(camera.width, camera.height - 6, 'Mouse x = ' + str(mouse_x))
+        puts(camera.width, camera.height - 5, 'Mouse y = ' + str(mouse_y))

@@ -6,7 +6,7 @@ from game_states import GameStates
 def handle_keys(game_state, key):
     if game_state == GameStates.PLAYERS_TURN:  # GameStates.SESSION:
         return handle_player_turn_keys(key)
-    elif game_state == 'targeting':  # GameStates.TARGETING:
+    elif game_state == GameStates.TARGETING:
         return handle_targeting_keys(key)
     elif game_state == GameStates.PLAYER_DEAD:
         return handle_menu_keys(key)
