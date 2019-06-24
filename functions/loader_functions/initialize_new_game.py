@@ -1,4 +1,13 @@
 from bearlibterminal import terminal as blt
+from camera import Camera
+from components.fighter import Fighter
+from components.inventory import Inventory
+from entity import Entity
+from components.fov import Fov
+from UI.game_messages import MessageLog
+from game_states import GameStates
+from map_objects.game_map import GameMap
+from map_objects.map_generator import generate_map
 
 
 def get_constants():
@@ -19,3 +28,24 @@ def get_constants():
     }
 
     return constants
+
+
+def get_game_variables(constants):
+    fighter_component = Fighter(hp=3000, defense=2, power=5)
+    inventory_component = Inventory(26)
+    game_map = GameMap(constants['map_width'], constants['map_height'])
+    fov_component = Fov(game_map)
+    player = Entity(0, 0,
+                    '@', 'You', 'white', game_map.entities,
+                    fighter=fighter_component,
+                    fov=fov_component,
+                    inventory=inventory_component)
+    player.fov.calc_fov(game_map)
+    # game_map.get_player(player)
+    map_type = 'chunks'
+    generate_map(game_map, player, map_type)
+    game_state = GameStates.PLAYERS_TURN
+    camera = Camera(constants['camera_width'], constants['camera_height'])
+    message_log = MessageLog()
+
+    return game_map, player, game_state, camera, message_log, map_type

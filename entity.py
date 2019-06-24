@@ -1,4 +1,5 @@
 import math
+import uuid
 
 
 class Entity:
@@ -8,6 +9,7 @@ class Entity:
                  item=None, inventory=None,
                  blocked=True,
                  block_sight=None, ):
+        self.id = uuid.uuid4()
         self.x = x
         self.y = y
         self.char = char

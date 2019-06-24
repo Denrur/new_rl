@@ -108,16 +108,18 @@ def cast_confuse(*args, **kwargs):
         results.append({'consumed': False, 'message': 'You cannot target a tile outside your field of view.'})
         return results
 
-    entity = entities.get(target_x, target_y)
+    entity = entities.get((target_x, target_y))
     if entity.ai:
         confused_ai = ConfusedMonster(entity.ai, 10)
 
         confused_ai.owner = entity
         entity.ai = confused_ai
 
-        results.append({'consumed': True, 'message': f'The eyes of the {entity.name} look vacant, as he starts to stumble around!'})
+        results.append({'consumed': True,
+                        'message': f'The eyes of the {entity.name} look vacant, as he starts to stumble around!'})
 
     else:
-        results.append({'consumed': False, 'message': 'There is no targetable enemy at that location.'})
+        results.append({'consumed': False,
+                        'message': 'There is no targetable enemy at that location.'})
 
     return results

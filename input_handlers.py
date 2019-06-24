@@ -125,3 +125,16 @@ def handle_player_dead_key(key):
         return {'mouse': True}
     # print("Code ", key)
     return {}
+
+
+def handle_main_menu():
+    code = blt.read()
+
+    if code == blt.TK_A:
+        return {'new_game': True}
+    elif code == blt.TK_B:
+        return{'load_game': True}
+    elif code == blt.TK_C or code == blt.TK_ESCAPE:
+        return {'exit': True}
+
+    return {}

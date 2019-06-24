@@ -5,7 +5,7 @@ from components.fighter import Fighter
 from components.fov import Fov
 from components.item import Item
 from entity import Entity
-from functions.item_functions import heal, cast_lightning, cast_fireball
+from functions.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 
 
 def place_entities(x, y,
@@ -55,12 +55,20 @@ def place_entities(x, y,
                 Entity(mx, my, '!', 'Healing potion', 'violet',
                        game_map.items,
                        item=item_component)
-            elif item_chance < 95:
+            elif item_chance < 10:
                 item_component = Item(use_function=cast_fireball, targeting=True,
                                       targeting_message='''Left-click a target tile for the fireball,
                                       or right-click to cancel.''',
-                                      damage=4, radius=3)
+                                      damage=20, radius=3)
                 Entity(mx, my, '#', 'Fireball Scroll', 'red',
+                       game_map.items,
+                       item=item_component)
+
+            elif item_chance < 95:
+                item_component = Item(use_function=cast_confuse, targeting=True,
+                                      targeting_message='''Left-click a target tile for the fireball,
+                                      or right-click to cancel.''')
+                Entity(mx, my, '#', 'Confuse Scroll', 'pink',
                        game_map.items,
                        item=item_component)
 

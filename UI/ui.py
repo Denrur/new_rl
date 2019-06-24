@@ -171,6 +171,21 @@ def menu(header, options, width, screen_width, screen_height, title=None):
     blt.refresh()
 
 
+def main_menu(screen_width, screen_height):
+    blt.put(0, 0, 0xE000)
+    blt.color('red')
+    blt.puts(int(screen_width / 2), int(screen_height / 2) - 4, 'Pirate Rogue')
+    blt.color('white')
+    blt.puts(int(screen_width / 2), int(screen_height - 2), 'By Denrur')
+
+    menu('', ['Play a new game', 'Continue last game', 'Quit'], 24,
+         screen_width, screen_height)
+
+
+def message_box(header, width, screen_width, screen_height):
+    menu(header, [], width, screen_width, screen_height)
+
+
 def inventory_menu(header, player, inventory_width,
                    screen_width, screen_height):
     if len(player.inventory.items) == 0:

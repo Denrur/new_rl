@@ -2,70 +2,93 @@ from time import time
 
 from bearlibterminal import terminal as blt
 
-from camera import Camera
-from components.fighter import Fighter
-from components.fov import Fov
-from components.inventory import Inventory
-from entity import Entity
-from functions.loader_functions.initialize_new_game import get_constants
-from UI.game_messages import MessageLog
+
+from functions.loader_functions.initialize_new_game import get_constants, get_game_variables
+from functions.loader_functions.data_loaders import load_game, save_game
 from game_states import GameStates
-from input_handlers import handle_keys
+from input_handlers import handle_keys, handle_main_menu
 from map_objects.chunks.chunk_generator import add_new_chunks
-from map_objects.game_map import GameMap
-from map_objects.map_generator import generate_map
 from physics import movement
 from render_functions import render_all
 from result_listner import show_result
 from UI.frame import FrameWithScrollbar
+from UI.ui import main_menu, message_box
 
 
 def main():
     constants = get_constants()
-    screen_width = constants['screen_width']
-    screen_height = constants['screen_height']
-    map_width = constants['map_width']
-    map_height = constants['map_height']
-    camera_width = constants['camera_width']
-    camera_height = constants['camera_height']
-    game_map = GameMap(map_width, map_height)
 
-    fov_component = Fov(game_map)
-    fighter_component = Fighter(hp=3000, defense=2, power=5)
-    inventory_component = Inventory(26)
-    player = Entity(int(screen_width / 2),
-                    int(screen_height / 2),
-                    '@', 'You', 'white', game_map.entities,
-                    fighter=fighter_component,
-                    fov=fov_component,
-                    inventory=inventory_component)
+    player = None
+    game_map = None
+    message_log = None
+    game_state = None
+    camera = None
+    map_type = None
 
-    game_map.get_player(player)
-    map_type = 'chunks'
-    generate_map(game_map, player, map_type)
+    show_main_menu = True
+    show_load_error_message = False
 
-    camera = Camera(camera_width, camera_height)
-    message_log = MessageLog()
+    while True:
+        if show_main_menu:
+            main_menu(constants['screen_width'], constants['screen_height'])
+
+            if show_load_error_message:
+                message_box('No save game to load', 50,
+                            constants['screen_width'],
+                            constants['screen_height'])
+            blt.refresh()
+
+            action = handle_main_menu()
+
+            new_game = action.get('new_game')
+            load_saved_game = action.get('load_game')
+            exit_game = action.get('exit')
+
+            if (show_load_error_message and
+                    (new_game or load_saved_game or exit_game)):
+                show_load_error_message = False
+            elif new_game:
+                (game_map,
+                 player,
+                 game_state,
+                 camera,
+                 message_log,
+                 map_type) = (get_game_variables(constants))
+                game_map.get_player(player)
+
+                show_main_menu = False
+            elif load_saved_game:
+                try:
+                    (player, game_map, message_log, game_state, camera, map_type) = load_game()
+
+                    show_main_menu = False
+                except FileNotFoundError:
+                    show_load_error_message = True
+            elif exit_game:
+                break
+
+        else:
+            blt.clear()
+            play_game(game_map, player, game_state, camera, message_log, map_type)
+
+            show_main_menu = True
+
+
+def play_game(game_map, player, game_state, camera, message_log, map_type):
+
     log_frame = FrameWithScrollbar(message_log, 'dark orange')
-    game_state = GameStates.PLAYERS_TURN
+
     previous_game_state = game_state
-    player.fov.calc_fov(game_map)
+
     render_all(game_map, player, camera, game_state, log_frame)
     blt.refresh()
-    targeting_item = None
+    # targeting_item = None
     while True:
-        # mouse_x = blt.state(blt.TK_MOUSE_X)
-        # mouse_y = blt.state(blt.TK_MOUSE_Y)
-        # mouse = (mouse_x, mouse_y)
-        # player.fov.calc_fov(game_map)
-        # render_all(game_map, player, camera)
+
         blt.clear()
-        # message_log = MessageLog()
-        # key = None
-        # if blt.has_input():
+
         key = blt.read()
         action = handle_keys(game_state, key)
-        # mouse_action = handle_mouse(mouse)
         move = action.get('move')
         fullscreen = action.get('fullscreen')
         pickup = action.get('pickup')
@@ -129,8 +152,6 @@ def main():
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
 
-
-
         if player_turn_results:
             state = show_result(player_turn_results,
                                 game_state,
@@ -149,15 +170,14 @@ def main():
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
+                save_game(player, game_map, message_log, game_state, camera, map_type)
+
                 return False
 
         if game_state == GameStates.ENEMY_TURN:
             completed_entities = []
             entities = [game_map.entities.get((x, y)) for (x, y) in set(player.fov.fov_cells) & set(game_map.entities)]
-            # for x, y in player.fov.fov_cells:
             for entity in entities:
-                # if (x, y) in game_map.entities:
-                # entity = game_map.entities.get((x, y))
                 if entity is not None and entity.ai:
                     if entity not in completed_entities:
                         enemy_turn_results = entity.ai.take_turn(player,
@@ -176,12 +196,10 @@ def main():
 
             else:
                 game_state = GameStates.PLAYERS_TURN
-            # print(i)
         render_all(game_map, player, camera, game_state, log_frame, action,
                    debug=True)
         end_loop = time()
         print(end_loop - start_loop)
-        # blt.refresh()
 
 
 if __name__ == '__main__':
