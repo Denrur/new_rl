@@ -28,7 +28,7 @@ def generate_chunk(x, y, game_map):
             height_map[(j, k)] = (height_map[(j, k)] - min_noise)/(
                 max_noise - min_noise)
 
-            if height_map[(j, k)] < 0.1:
+            if height_map[(j, k)] < 0.3:
                 # game_map.water[(j, k)] = Entity(j, k, '[U+504A]', 'white',
                 # 'water')
                 game_map.water[(j, k)] = Entity(j, k, '~', 'Water', 'blue',

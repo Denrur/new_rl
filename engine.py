@@ -81,8 +81,9 @@ def play_game(game_map, player, game_state, camera, message_log, map_type):
     previous_game_state = game_state
 
     render_all(game_map, player, camera, game_state, log_frame)
+    print('1')
+    fps = 25
     blt.refresh()
-    # targeting_item = None
     while True:
 
         blt.clear()
@@ -196,9 +197,11 @@ def play_game(game_map, player, game_state, camera, message_log, map_type):
 
             else:
                 game_state = GameStates.PLAYERS_TURN
+        print('2')
         render_all(game_map, player, camera, game_state, log_frame, action,
                    debug=True)
         end_loop = time()
+        blt.delay(1000 // fps)
         print(end_loop - start_loop)
 
 

@@ -1,6 +1,8 @@
 from random import randint
 
 from components.ai import BasicMonster
+from components.equipment import EquipmentSlots
+from components.equippable import Equippable
 from components.fighter import Fighter
 from components.fov import Fov
 from components.item import Item
@@ -63,6 +65,16 @@ def place_entities(x, y,
                 Entity(mx, my, '#', 'Fireball Scroll', 'red',
                        game_map.items,
                        item=item_component)
+
+            elif item_chance < 20:
+                equippable_component = Equippable(EquipmentSlots.RIGHT_HAND, power_bonus=3)
+                Entity(mx, my, '/', 'Sword', 'blue',
+                       game_map.items, equippable=equippable_component)
+
+            elif item_chance < 30:
+                equippable_component = Equippable(EquipmentSlots.LEFT_HAND, defense_bonus=3)
+                Entity(mx, my, '[', 'Shield', 'brown',
+                       game_map.items, equippable=equippable_component)
 
             elif item_chance < 95:
                 item_component = Item(use_function=cast_confuse, targeting=True,

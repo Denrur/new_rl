@@ -1,5 +1,6 @@
 import math
 import uuid
+from components.item import Item
 
 
 class Entity:
@@ -8,7 +9,10 @@ class Entity:
                  fighter=None, ai=None, fov=None,
                  item=None, inventory=None,
                  blocked=True,
-                 block_sight=None, ):
+                 block_sight=None,
+                 stairs=None,
+                 equipment=None,
+                 equippable=None):
         self.id = uuid.uuid4()
         self.x = x
         self.y = y
@@ -24,6 +28,9 @@ class Entity:
         self.ai = ai
         self.item = item
         self.inventory = inventory
+        self.stairs = stairs
+        self.equipment = equipment
+        self.equippable = equippable
 
         if self.inventory:
             self.inventory.owner = self
@@ -39,6 +46,20 @@ class Entity:
 
         if self.fov:
             self.fov.owner = self
+
+        if self.stairs:
+            self.stairs.owner = self
+
+        if self.equipment:
+            self.equipment.owner = self
+
+        if self.equippable:
+            self.equippable.owner = self
+
+            if not self.item:
+                item = Item()
+                self.item = item
+                self.item.owner = self
 
         if block_sight is None:
             block_sight = blocked
@@ -62,10 +83,15 @@ class Entity:
         x = self.x + dx
         y = self.y + dy
         if (((x, y) not in game_map.entities) and
-            ((x, y) not in game_map.terrain)):
+                ((x, y) not in game_map.terrain)):
             self.move(dx, dy)
 
     def distance_to(self, other):
         dx = other.x - self.x
         dy = other.y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
+
+
+class Stairs:
+    def __init__(self, floor):
+        self.floor = floor

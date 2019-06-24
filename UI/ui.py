@@ -51,13 +51,13 @@ def render_bar(x, y, total_width, name, value, max_val, foreground, background):
     # blt.bkcolor(last_bg)
     blt.layer(Layers.UI_FOREGROUND.value)
     if width > 0:
-        #last_bg = blt.state(blt.TK_BKCOLOR)
+        # last_bg = blt.state(blt.TK_BKCOLOR)
         blt.color(foreground)
         blt.clear_area(x, y, width, 1)
         for i in range(width):
             blt.puts(x + i, y, f'[color={foreground}][U+2588]')
 
-        #blt.bkcolor(last_bg)
+        # blt.bkcolor(last_bg)
 
     text = name + ':' + str(value) + '/' + str(max_val)
     x_centered = x + (total_width - len(text)) // 2
@@ -68,8 +68,8 @@ def render_bar(x, y, total_width, name, value, max_val, foreground, background):
 
 
 def render_log(x, y, width, height, log_frame, action=None):
-    dragging_scrollbar = False
-    dragging_scrollbar_offset = 0
+    # dragging_scrollbar = False
+    # dragging_scrollbar_offset = 0
     mouse_scroll_step = 2
     frame = log_frame
     frame.contents.update_heights(width)
@@ -194,12 +194,12 @@ def inventory_menu(header, player, inventory_width,
         options = []
 
         for item in player.inventory.items:
-            # if player.equipment.main_hand == item:
-            #     options.append('{0} (on main hand)'.format(item.name))
-            # elif player.equipment.off_hand == item:
-            #     options.append('{0} (on off hand)'.format(item.name))
-            # else:
-            options.append(item.name)
+            if player.equipment.right_hand == item:
+                options.append(f'{item.name} (on right hand)')
+            elif player.equipment.left_hand == item:
+                options.append(f'{item.name} (on left hand)')
+            else:
+                options.append(item.name)
 
     menu(header, options, inventory_width, screen_width, screen_height,
          title='INVENTORY')

@@ -1,8 +1,8 @@
-from entity import Entity
+from random import randint
 
 
 class GameMap:
-    def __init__(self, width, height, chunk_size=50):
+    def __init__(self, width, height, chunk_size=50, level=1):
         self.width = width
         self.height = height
         self.player = None
@@ -15,22 +15,23 @@ class GameMap:
         self.objects = dict()
         self.items = dict()
         self.corpses = dict()
+        self.stairs = dict()
+        self.level = level
 
     def get_player(self, player):
-        self.player = player
+        x = randint(0, self.width)
+        y = randint(0, self.height)
+        if (x, y) not in self.terrain:
+            del self.entities[(player.x, player.y)]
+            player.x, player.y = x, y
+            self.entities[(x, y)] = player
+            self.player = player
+            player.fov.calc_fov(self)
+        else:
+            self.get_player(player)
 
     def is_unobstruct(self, x, y):
         if (x, y) in self.terrain:
             return False
         else:
             return True
-
-    # def initialize_terrain(self):
-    #     for x in range(self.width):
-    #         for y in range(self.height):
-    #             Entity(x, y, '#', 'white', self.terrain)
-
-    def create_room(self, room):
-        for x in range(room.x1 + 1, room.x2):
-            for y in range(room.y1 + 1, room.y2):
-                del self.terrain[(x, y)]

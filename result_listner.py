@@ -10,6 +10,7 @@ def show_result(results, game_state, game_map, message_log, entity):
             item_added = result.get('item_added')
             item_consumed = result.get('consumed')
             item_dropped = result.get('item_dropped')
+            equip = result.get('equip')
             targeting = result.get('targeting')
             targeting_cancelled = result.get('targeting_cancelled')
             if message:
@@ -46,4 +47,17 @@ def show_result(results, game_state, game_map, message_log, entity):
                 item_dropped.layer[(entity.x, entity.y)] = item_dropped
                 game_state = GameStates.ENEMY_TURN
 
+            if equip:
+                equip_results = entity.equipment.toggle_equip(equip)
+
+                for equip_result in equip_results:
+                    equiped = equip_result.get('equipped')
+                    dequipped = equip_result.get('dequipped')
+
+                    if equiped:
+                        message_log.append(f'You equipped the {equiped.name}')
+
+                    if dequipped:
+                        message_log.append(f'You dequipped the {dequipped.name}')
+                game_state = GameStates.ENEMY_TURN
         return game_state
