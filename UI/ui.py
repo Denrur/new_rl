@@ -2,29 +2,32 @@ import textwrap
 
 from bearlibterminal import terminal as blt
 
-from game_states import GameStates
-from UI.layers import Layers
+from UI.layers import Layers, change_layer
+from game_states import EntityStates
 
 bar_width = 20
 panel_height = 7
 panel_y = blt.state(blt.TK_HEIGHT) - panel_height
 
+# todo: Поработать UI, разобрать с blt.layers
 
-def ui(game_map, player, camera, game_state, log_frame, action):
+
+def ui(game_map, player, camera, log_frame, action):
     mouse_x, mouse_y = blt.state(blt.TK_MOUSE_X), blt.state(blt.TK_MOUSE_Y)
     names = get_names_under_mouse(game_map.entities, player, camera)
 
-    # print(names)
     if names:
         blt.clear_area(mouse_x + 1, mouse_y, len(names), 1)
         blt.puts(mouse_x + 1, mouse_y, names)
+
     render_bar(camera.width + 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp,
                'dark red', 'darkest red')
 
     render_log(1, camera.height + 1, 50, 7, log_frame, action)
-    if game_state in (GameStates.SHOW_INVENTORY,
-                      GameStates.DROP_INVENTORY):
-        if game_state == GameStates.SHOW_INVENTORY:
+
+    if player.state in (EntityStates.SHOW_INVENTORY,
+                        EntityStates.DROP_INVENTORY):
+        if player.state == EntityStates.SHOW_INVENTORY:
             inventory_title = 'Press the key next to an item to use it'
         else:
             inventory_title = 'Press the key next to an item to drop it'
@@ -39,7 +42,8 @@ def ui(game_map, player, camera, game_state, log_frame, action):
 
 def render_bar(x, y, total_width, name, value, max_val, foreground, background):
     width = int(float(value) / max_val * total_width)
-    blt.layer(Layers.UI_BACKGROUND.value)
+    change_layer(Layers.UI_BACKGROUND)
+    # blt.layer(Layers.UI_BACKGROUND.value)
     blt.color(background)
     for i in range(total_width):
         blt.puts(x + i, y, f'[color={background}][U+2588]')
@@ -49,7 +53,8 @@ def render_bar(x, y, total_width, name, value, max_val, foreground, background):
     # print('Bg', blt.state(blt.TK_BKCOLOR))
     # blt.clear_area(x, y, width, 1)
     # blt.bkcolor(last_bg)
-    blt.layer(Layers.UI_FOREGROUND.value)
+    change_layer(Layers.UI_FOREGROUND)
+    # blt.layer(Layers.UI_FOREGROUND.value)
     if width > 0:
         # last_bg = blt.state(blt.TK_BKCOLOR)
         blt.color(foreground)
@@ -126,7 +131,9 @@ def get_names_under_mouse(entities, player, camera):
 def create_window(x, y, w, h, title=None):
     last_bg = blt.state(blt.TK_BKCOLOR)
     blt.bkcolor(blt.color_from_argb(200, 0, 0, 0))
+    change_layer(Layers.MAP)
     blt.clear_area(x, y, w + 1, h + 1)
+    change_layer(Layers.UI_FOREGROUNDLay)
     blt.bkcolor(last_bg)
 
     border = '[U+250C]' + '[U+2500]' * (w - 2) + '[U+2510]'
@@ -138,9 +145,9 @@ def create_window(x, y, w, h, title=None):
     blt.puts(x, y + h, '[font=small]' + border)
 
     if title is not None:
-        leng = len(title)
-        offset = (w + 2 - leng) // 2
-        blt.clear_area(x + offset, y, leng, 1)
+        length = len(title)
+        offset = (w + 2 - length) // 2
+        blt.clear_area(x + offset, y, length, 1)
         blt.puts(x + offset, y, '[font=small]' + title)
 
 
@@ -188,6 +195,7 @@ def message_box(header, width, screen_width, screen_height):
 
 def inventory_menu(header, player, inventory_width,
                    screen_width, screen_height):
+    # TODO: Разобраться с прозрачным окном инвентаря
     if len(player.inventory.items) == 0:
         options = ['Inventory is empty.']
     else:

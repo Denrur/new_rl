@@ -29,20 +29,22 @@ def place_entities(x, y,
                 fighter_component = Fighter(hp=10, defense=0, power=3)
                 ai_component = BasicMonster()
                 fov_component = Fov(game_map, radius=7)
-                Entity(mx, my, 'z', 'Zombie', 'green',
-                       game_map.entities,
-                       fighter=fighter_component,
-                       ai=ai_component,
-                       fov=fov_component)
+                entity = Entity(mx, my, 'z', 'Zombie', 'green',
+                                game_map.entities,
+                                fighter=fighter_component,
+                                ai=ai_component,
+                                fov=fov_component)
+                # game_map.time_schedule.schedule_event(entity, entity.action_delay())
             else:
                 fighter_component = Fighter(hp=16, defense=1, power=4)
                 ai_component = BasicMonster()
                 fov_component = Fov(game_map, radius=9)
-                Entity(mx, my, 'r', 'Robot', 'red',
-                       game_map.entities,
-                       fighter=fighter_component,
-                       ai=ai_component,
-                       fov=fov_component)
+                entity = Entity(mx, my, 'r', 'Robot', 'red',
+                                game_map.entities,
+                                fighter=fighter_component,
+                                ai=ai_component,
+                                fov=fov_component)
+                # game_map.time_schedule.schedule_event(entity, entity.action_delay())
 
     for i in range(number_of_items):
         mx = randint(x + 1, x + area_width - 1)
@@ -78,7 +80,7 @@ def place_entities(x, y,
 
             elif item_chance < 95:
                 item_component = Item(use_function=cast_confuse, targeting=True,
-                                      targeting_message='''Left-click a target tile for the fireball,
+                                      targeting_message='''Left-click a target tile for the confuse,
                                       or right-click to cancel.''')
                 Entity(mx, my, '#', 'Confuse Scroll', 'pink',
                        game_map.items,

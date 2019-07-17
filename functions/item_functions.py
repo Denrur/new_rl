@@ -10,22 +10,20 @@ def heal(*args, **kwargs):
     if entity.fighter.hp == entity.fighter.max_hp:
         results.append({
             'consumed': False,
-            'message' : f'{entity.name} have a full health'
+            'message': f'{entity.name} have a full health'
             })
     else:
         entity.fighter.heal(amount)
         results.append({
             'consumed': True,
-            'message' : f'{entity.name} feel better'
+            'message': f'{entity.name} feel better'
             })
-    print(results)
     return results
 
 
 def cast_lightning(*args, **kwargs):
 
     caster = args[0]
-    print(caster.name)
     entities = kwargs.get('entities')
     fov_map = caster.fov.fov_cells
     damage = kwargs.get('damage')
@@ -35,8 +33,6 @@ def cast_lightning(*args, **kwargs):
 
     target = None
     closest_distance = maximum_range + 1
-    # entities_in_fov = None
-    # print(set(entities) & set(fov_map))
 
     entities_in_fov = list(set(entities.keys()) & set(fov_map))
 
@@ -65,7 +61,6 @@ def cast_lightning(*args, **kwargs):
 
 def cast_fireball(*args, **kwargs):
     caster = args[0]
-    print(caster.name)
     entities = kwargs.get('entities')
     fov_map = caster.fov.fov_cells
     damage = kwargs.get('damage')
@@ -75,9 +70,6 @@ def cast_fireball(*args, **kwargs):
 
     results = list()
 
-    # entities_in_fov = list(set(entities.keys()) & set(fov_map))
-    print(fov_map)
-    print(target_x, target_y)
     if (target_x, target_y) not in fov_map:
         results.append({'consumed': False, 'message': 'You cannot see the target'})
         return results
@@ -109,7 +101,7 @@ def cast_confuse(*args, **kwargs):
         return results
 
     entity = entities.get((target_x, target_y))
-    if entity.ai:
+    if entity and entity.ai:
         confused_ai = ConfusedMonster(entity.ai, 10)
 
         confused_ai.owner = entity

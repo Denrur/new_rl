@@ -1,8 +1,8 @@
 from functions.death_functions import kill_entity
-from game_states import GameStates
+from game_states import EntityStates
 
 
-def show_result(results, game_state, game_map, message_log, entity):
+def show_result(results, game_map, entity):
     if results:
         for result in results:
             message = result.get('message')
@@ -14,38 +14,33 @@ def show_result(results, game_state, game_map, message_log, entity):
             targeting = result.get('targeting')
             targeting_cancelled = result.get('targeting_cancelled')
             if message:
-                message_log.append(message)
+                game_map.message_log.append(message)
 
             if dead_entity:
                 if dead_entity.name == 'You':
-                    result = kill_entity(dead_entity, game_map)
-                    game_state = result.get('game_state', game_state)
+                    kill_entity(dead_entity, game_map)
                 else:
-                    result = kill_entity(dead_entity, game_map)
-                    game_state = result.get('game_state', game_state)
+                    kill_entity(dead_entity, game_map)
 
             if item_added:
                 del item_added.layer[(item_added.x, item_added.y)]
-                # del game_map.items[(item_added.x, item_added.y)]
-
-                game_state = GameStates.ENEMY_TURN
+                entity.state = EntityStates.PASS_TURN
 
             if item_consumed:
-                game_state = GameStates.ENEMY_TURN
-                # message = result.get('message')
-                # message_log.append(message)
+                entity.state = EntityStates.PASS_TURN
+
             if targeting:
-                game_state = GameStates.TARGETING
+                entity.state = EntityStates.TARGETING
                 entity.inventory.targeting_item = targeting_item = targeting
-                message_log.append(targeting_item.item.targeting_message)
+                game_map.message_log.append(targeting_item.item.targeting_message)
 
             if targeting_cancelled:
-                game_state = GameStates.SHOW_INVENTORY
-                message_log.append('Targeting cancelled')
+                entity.state = EntityStates.SHOW_INVENTORY
+                game_map.message_log.append('Targeting cancelled')
 
             if item_dropped:
                 item_dropped.layer[(entity.x, entity.y)] = item_dropped
-                game_state = GameStates.ENEMY_TURN
+                entity.state = EntityStates.PASS_TURN
 
             if equip:
                 equip_results = entity.equipment.toggle_equip(equip)
@@ -55,9 +50,8 @@ def show_result(results, game_state, game_map, message_log, entity):
                     dequipped = equip_result.get('dequipped')
 
                     if equiped:
-                        message_log.append(f'You equipped the {equiped.name}')
+                        game_map.message_log.append(f'You equipped the {equiped.name}')
 
                     if dequipped:
-                        message_log.append(f'You dequipped the {dequipped.name}')
-                game_state = GameStates.ENEMY_TURN
-        return game_state
+                        game_map.message_log.append(f'You dequipped the {dequipped.name}')
+                entity.state = EntityStates.PASS_TURN

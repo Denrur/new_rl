@@ -1,5 +1,7 @@
-from bearlibterminal import terminal as blt
 import textwrap
+
+from bearlibterminal import terminal as blt
+
 
 class MessageLog:
     def __init__(self):

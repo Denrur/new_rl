@@ -1,4 +1,5 @@
 from enum import Enum
+from bearlibterminal import terminal as blt
 
 
 class Layers(Enum):
@@ -8,3 +9,7 @@ class Layers(Enum):
     UI_TEXT = 3
     VFX_BACKGROUND = 4
     VFX_FOREGROUND = 5
+
+
+def change_layer(layer):
+    blt.layer(layer.value)

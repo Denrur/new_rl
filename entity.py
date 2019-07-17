@@ -1,10 +1,15 @@
-import math
 import uuid
+
+import math
+
 from components.item import Item
+
+from game_states import EntityStates
 
 
 class Entity:
-    def __init__(self, x, y, char, name, color,
+
+    def __init__(self, x=0, y=0, char='B', name='Bot', color='white',
                  layer=None,
                  fighter=None, ai=None, fov=None,
                  item=None, inventory=None,
@@ -12,7 +17,9 @@ class Entity:
                  block_sight=None,
                  stairs=None,
                  equipment=None,
-                 equippable=None):
+                 equippable=None,
+                 speed=10,
+                 state=EntityStates.IDLE):
         self.id = uuid.uuid4()
         self.x = x
         self.y = y
@@ -31,6 +38,9 @@ class Entity:
         self.stairs = stairs
         self.equipment = equipment
         self.equippable = equippable
+        self.speed = speed
+        self.action_cost = 10
+        self.state = state
 
         if self.inventory:
             self.inventory.owner = self
@@ -91,6 +101,16 @@ class Entity:
         dy = other.y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
 
+    @property
+    def action_delay(self):
+        # self.energy -= self.speed
+        return self.action_cost / self.speed
+
+    def change_layer(self, layer):
+        self.layer.pop((self.x, self.y))
+        # print(game_map.entities[(entity.x, entity.y)].name)
+        self.layer = layer
+        self.layer[(self.x, self.y)] = self
 
 class Stairs:
     def __init__(self, floor):

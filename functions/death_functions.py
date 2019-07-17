@@ -1,13 +1,14 @@
-from game_states import GameStates
+from game_states import GameStates, EntityStates
 
 
 def kill_entity(entity, game_map):
     entity.char = '%'
     entity.color = 'red'
-    game_map.entities.pop((entity.x, entity.y))
-    game_map.corpses[(entity.x, entity.y)] = entity
+    print((entity.x, entity.y))
+    entity.change_layer(game_map.corpses)
+    entity.state = EntityStates.DEAD
     if entity.name == 'You':
-        return {'message': "You died", 'game_state': GameStates.PLAYER_DEAD}
+        return {'message': "You died", 'game_state': entity.state}
     else:
         death_message = f'{entity.name} is dead'
         entity.fighter = None

@@ -1,9 +1,11 @@
 __author__ = 'Travis Moy'
 
-import math
+import pdb
 import random
 import timeit
-import pdb
+
+import math
+
 
 # Holds the three angles for each cell. Near is closest to the
 # horizontal/vertical line, and far is furthest.

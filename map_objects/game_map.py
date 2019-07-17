@@ -2,7 +2,7 @@ from random import randint
 
 
 class GameMap:
-    def __init__(self, width, height, chunk_size=50, level=1):
+    def __init__(self, width, height,  time_schedule, camera, message_log, game_state=None, chunk_size=50, level=1, map_type='chunks'):
         self.width = width
         self.height = height
         self.player = None
@@ -17,10 +17,16 @@ class GameMap:
         self.corpses = dict()
         self.stairs = dict()
         self.level = level
+        self.time_schedule = time_schedule
+        self.map_type = map_type
+        self.camera = camera
+        self.message_log = message_log
+        self.game_state = game_state
 
     def get_player(self, player):
         x = randint(0, self.width)
         y = randint(0, self.height)
+        print(self.entities)
         if (x, y) not in self.terrain:
             del self.entities[(player.x, player.y)]
             player.x, player.y = x, y

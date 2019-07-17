@@ -3,14 +3,15 @@ from bearlibterminal import terminal as blt
 from UI.ui import ui
 
 
-def render_all(game_map, player, camera, game_state,
-               log_frame, action=None,
-               debug=False):
+def render_all(game_map, log_frame, action=None, debug=False):
+    blt.clear()
     entities = game_map.entities
     items = game_map.items
     corpses = game_map.corpses
     terrain = game_map.terrain
     water = game_map.water
+    camera = game_map.camera
+    player = game_map.player
     camera.move_camera(player.x, player.y, game_map)
 
     for x in range(camera.width):
@@ -48,7 +49,7 @@ def render_all(game_map, player, camera, game_state,
                     water.get((map_x, map_y)).explored):
                 render_obj((map_x, map_y), water, camera, 'darker blue')
 
-    ui(game_map, player, camera, game_state, log_frame, action)
+    ui(game_map, player, camera, log_frame, action)
 
     # debug
     if debug:

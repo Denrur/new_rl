@@ -1,5 +1,5 @@
-from map_objects.chunks.make_bsp import make_bsp
 from map_objects.chunks.chunk_generator import add_new_chunks
+from map_objects.chunks.make_bsp import make_bsp
 
 
 def generate_map(game_map, player, map_type):

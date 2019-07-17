@@ -8,7 +8,6 @@ def movement(destination, game_map, entity):
 
     else:
         dx, dy = destination.x - entity.x, destination.y - entity.y
-        print('dx, dy', dx, dy)
         distance = entity.distance_to(destination)
 
         dx = int(round(dx / distance))
@@ -20,6 +19,7 @@ def movement(destination, game_map, entity):
         return results
 
     if game_map.entities.get((dest_x, dest_y)):
+        # TODO: Подумать, могут ли враги атаковать друг друга
         target = game_map.entities.get((dest_x, dest_y))
         if target.fighter.hp > 0 and entity.name != target.name:
             attack_results = entity.fighter.attack(target)

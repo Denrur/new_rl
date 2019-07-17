@@ -64,7 +64,7 @@ class Inventory:
         self.remove_item(item)
         results.append({
             'item_dropped': item,
-            'message'     : f'You dropped the {item.name}'
+            'message': f'You dropped the {item.name}'
             })
 
         return results
